@@ -23,7 +23,7 @@ interface Props {
 
 export default function MealCard({ mealKey, meal, dateLabel }: Props) {
   return (
-    <div className="relative w-full rounded-4xl border border-black/10 bg-white/70 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.06] dark:shadow-glass overflow-hidden">
+    <div className="relative w-full overflow-hidden rounded-[24px] border border-black/10 bg-white/95 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
       {/* steam wisps, purely decorative */}
       <div aria-hidden className="pointer-events-none absolute top-0 left-0 right-0 h-24 overflow-hidden opacity-60">
         <span className="absolute left-10 top-8 h-10 w-3 rounded-full bg-white/40 dark:bg-white/20 blur-md animate-steam" />

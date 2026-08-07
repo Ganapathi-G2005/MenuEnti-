@@ -39,9 +39,9 @@ export default function MealCarousel({ menu, dateLabel }: Props) {
   }
 
   const variants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0, scale: 0.97 }),
-    center: { x: 0, opacity: 1, scale: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -80 : 80, opacity: 0, scale: 0.97 }),
+    enter: (dir: number) => ({ x: dir > 0 ? 24 : -24, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? -24 : 24, opacity: 0 }),
   };
 
   return (
@@ -76,10 +76,11 @@ export default function MealCarousel({ menu, dateLabel }: Props) {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.6}
+              dragElastic={0.15}
+              dragMomentum={false}
               onDragEnd={handleDragEnd}
             >
               <MealCard

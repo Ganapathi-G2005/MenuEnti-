@@ -41,9 +41,9 @@ const themeInitScript = `
 (function() {
   try {
     var stored = localStorage.getItem('mess-menu-theme');
-    var theme = stored === 'light' ? 'light' : 'dark';
+    var theme = stored === 'dark' ? 'dark' : 'light';
     document.documentElement.classList.toggle('light', theme === 'light');
-    document.documentElement.classList.toggle('dark', theme !== 'light');
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   } catch (e) {}
 })();
 `;
@@ -54,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="light">
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
