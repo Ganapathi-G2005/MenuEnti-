@@ -1,5 +1,24 @@
 // Menu data digitized from the uploaded mess menu PDF.
 //
+// This version was re-verified against the ORIGINAL PDF TABLE by rasterizing
+// every page and visually reading each cell (rather than relying on the
+// jumbled/merged-cell text extraction). Multiple items in the previous
+// version were shifted by one weekday (especially Even Week Lunch and
+// Dinner) because the source PDF's merged header cells threw off a naive
+// column-by-column text reconstruction. Those are all corrected below.
+//
+// NEW: a separate `ON_THE_TABLE` export holds the items that are IDENTICAL
+// every single day of the week (both weeks) — e.g. breakfast beverages,
+// "BBJ" (Bread/Butter/Jam), lunch's "Sugar, Salt, Ghee, Podi", and the
+// "Onion" that accompanies every lunch salad/juice. These were previously
+// duplicated verbatim into every single day entry. They're now kept out of
+// the day-by-day items so each day only lists what's actually special to
+// that day, and the constant "always on the table" items are rendered once.
+// (Items that vary day-to-day even though they look like accompaniments —
+// e.g. Sprouts vs. Boiled Groundnuts, Fryums/Pickle vs. Papad/Pickle,
+// Salad vs. Seasonal Fruit Juice — stay in the per-day items since they
+// actually change.)
+//
 // The mess runs a two-week rotating cycle: an "even" week menu and an
 // "odd" week menu. Which one applies on a given calendar date is decided
 // by ISO-8601 week number parity in `lib/getTodayMenu.ts` (even ISO week
@@ -7,12 +26,11 @@
 // actual rotation is offset from this, flip `WEEK_PARITY_EVEN_MEANS`
 // in that file.
 //
-// A few source rows in the PDF had merged/wrapped table cells that made
-// day-boundaries ambiguous (mostly in the breakfast main-dish rows and
-// the Wednesday special-dinner row). Those were reconstructed using the
-// neighboring accompaniment rows as anchors and standard pairings
-// (e.g. Poori + Aloo curry, Paratha + Channa masala). Edit freely below
-// if your local menu differs.
+// The PDF also has a standalone "Snacks" meal (previously missing from
+// this file entirely) and a small, day-agnostic rotation table at the
+// bottom of page 2 for Seasonal Cut Fruits / Pickle / Seasonal Fruit
+// Juice varieties (only 4-5 entries, not mapped 1:1 to weekdays) — see
+// `SEASONAL_ROTATION` at the bottom of this file.
 
 export type DayName =
   | "sunday"
@@ -23,7 +41,7 @@ export type DayName =
   | "friday"
   | "saturday";
 
-export type MealKey = "breakfast" | "lunch" | "dinner";
+export type MealKey = "breakfast" | "lunch" | "snacks" | "dinner";
 
 export interface Meal {
   items: string[];
@@ -33,6 +51,7 @@ export interface Meal {
 export interface DayMenu {
   breakfast: Meal;
   lunch: Meal;
+  snacks: Meal;
   dinner: Meal;
 }
 
@@ -58,26 +77,36 @@ export const DAY_LABEL: Record<DayName, string> = {
   saturday: "Saturday",
 };
 
+// Items that are IDENTICAL on every single day of the week, for both
+// even and odd weeks. Render these once per meal rather than repeating
+// them in every day's list.
+export const ON_THE_TABLE: Record<"breakfast" | "lunch" | "snacks", string[]> = {
+  breakfast: ["BBJ (Bread, Butter, Jam)", "Tea", "Coffee", "Milk", "Sugar", "Salt"],
+  lunch: ["Sugar, Salt, Ghee, Podi", "Onion"],
+  snacks: ["Tea", "Coffee", "Milk", "Sugar"],
+};
+
 const EVEN_WEEK: WeekMenu = {
   sunday: {
     breakfast: {
-      items: ["Onion Carrot Uttapam", "Sambar", "Coconut Chutney", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Onion Carrot Uttapam", "Sambar", "Coconut Chutney", "Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
     },
     lunch: {
       items: [
         "Tawa Chapathi, Sev Tomato Gravy",
-        "Kerala Sadya, Avial",
         "Hyderabadi Paneer Biryani, Raitha / Hyderabadi Chicken Biryani, Raitha",
-        "Fryums, Pickle",
         "Ice Cream (1)",
-        "Salad, Onion",
+        "Salad",
       ],
+    },
+    snacks: {
+      items: ["Bhel Puri"],
+      beverages: ["Boost Sachets"],
     },
     dinner: {
       items: [
         "Peanut Coconut Rice, Veg Kurma",
-        "Rice, Sambar, Rasam, Cauliflower Peas Poriyal",
+        "Phulka, Gutti Vankaya Curry",
         "Curd",
         "Gulab Jamun (2)",
       ],
@@ -85,23 +114,25 @@ const EVEN_WEEK: WeekMenu = {
   },
   monday: {
     breakfast: {
-      items: ["Poori", "Aloo Masala Curry", "BBJ, Boiled Groundnuts", "Banana (1) / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Poori", "Aloo Masala Curry", "Boiled Groundnuts", "Banana (1) / Boiled Egg (1)"],
     },
     lunch: {
       items: [
         "Pulkha, Garlic Tomato Curry",
-        "Andhra Tomato Dal, Greens Poriyal",
+        "Kerala Sadya, Avial",
         "Rice, Vatha Kolambu, Curd",
-        "Papad, Pickle",
-        "Sugar, Salt, Ghee, Podi",
-        "Seasonal Fruit Juice, Onion",
+        "Fryums, Pickle",
+        "Seasonal Fruit Juice",
       ],
+    },
+    snacks: {
+      items: ["Sundal (Boiled Black Channa, Boiled Green Gram Dal)"],
+      beverages: ["Raagi Malt Powder"],
     },
     dinner: {
       items: [
         "Tawa Chapathi, Channa Masala",
-        "Lemon Rice, Curd",
+        "Rice, Sambar, Rasam, Cauliflower Peas Poriyal",
         "Buttermilk, Fryums",
         "Boondi Laddu (1)",
       ],
@@ -109,23 +140,25 @@ const EVEN_WEEK: WeekMenu = {
   },
   tuesday: {
     breakfast: {
-      items: ["Ragi Dosa", "Upma", "Sambar", "Groundnut Chutney", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Ragi Dosa", "Upma", "Sambar", "Groundnut Chutney", "Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
     },
     lunch: {
       items: [
         "Tawa Chapathi, Dum Aloo",
-        "Kovakai Fry",
+        "Andhra Tomato Dal, Greens Poriyal",
         "Jeera Rice, Rice, Rasam, Curd",
-        "Fryums, Pickle",
-        "Sugar, Salt, Ghee, Podi",
-        "Salad, Onion",
+        "Papad, Pickle",
+        "Salad",
       ],
+    },
+    snacks: {
+      items: ["Onion Pakoda"],
+      beverages: ["Boost Sachets"],
     },
     dinner: {
       items: [
         "Idli, Sambar, Karam Podi, Tomato Onion Chutney, Ghee",
-        "Rice, Potato Poriyal",
+        "Lemon Rice, Curd, Rice, Potato Poriyal",
         "Pickle",
         "Sweet Pongal***",
       ],
@@ -133,18 +166,20 @@ const EVEN_WEEK: WeekMenu = {
   },
   wednesday: {
     breakfast: {
-      items: ["Masala Dosa", "Upma", "Poha", "Sambar", "Tomato Onion Chutney", "BBJ, Boiled Groundnuts", "Banana (1) / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Masala Dosa", "Sambar", "Tomato Onion Chutney", "Boiled Groundnuts", "Banana (1) / Boiled Egg (1)"],
     },
     lunch: {
       items: [
-        "Tawa Chapathi, Paneer Peas Curry",
-        "Spinach Kootu",
+        "Pulkha, Yellow Channa Dal Masala",
+        "Kovakai Fry",
         "Rice, Sambar, Rasam, Curd",
         "Fryums, Pickle",
-        "Sugar, Salt, Ghee, Podi",
-        "Seasonal Fruit Juice, Onion",
+        "Seasonal Fruit Juice",
       ],
+    },
+    snacks: {
+      items: ["Banana Bajji (3)", "Kadalai Chutney"],
+      beverages: ["Raagi Malt Powder"],
     },
     dinner: {
       items: [
@@ -152,77 +187,88 @@ const EVEN_WEEK: WeekMenu = {
         "Veg: Naan with Paneer Butter Masala OR Roti with Paneer Tikka Masala",
         "Non-Veg: Naan with Butter Chicken OR Roti with Kadai Chicken",
         "Hyderabadi Veg Biryani / Veg Pulao",
-        "Aloo Curry, Raitha",
-        "Lemon Juice",
+        "Raita, Lemon Juice",
         "Ice Cream (Vanilla / Strawberry / Chocolate)",
         "Fruit Custard",
-        "Seasonal Fruits (4 varieties)",
+        "Seasonal Fruits (4 varieties: Apple, Banana, Grapes, Papaya, Pomegranate, Country Guava)",
       ],
     },
   },
   thursday: {
     breakfast: {
-      items: ["Mysore Bonda (3)", "Coconut Chutney", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Upma", "Poha", "Mysore Bonda (3)", "Coconut Chutney", "Sprouts", "Banana (1) / Boiled Egg (1)"],
     },
     lunch: {
       items: [
-        "Tawa Chapathi, Baigan Methi Curry",
-        "Aloo Masala Curry",
+        "Tawa Chapathi, Paneer Peas Curry",
+        "Spinach Kootu",
         "Rice, Sambar, Rasam, Curd",
-        "Gongura Chutney, Papad",
-        "Sugar, Salt, Ghee, Podi",
-        "Salad, Onion",
+        "Fryums, Pickle",
+        "Salad",
       ],
+    },
+    snacks: {
+      items: ["Sweet Corn (half piece - 6cm)"],
+      beverages: ["Boost Sachets"],
     },
     dinner: {
       items: [
         "Tawa Chapathi, Veg Biryani",
-        "Bagara Rice, Black Channa Curry",
-        "Buttermilk, Onion",
-        "Paruppu Payasam with Jaggery",
+        "Aloo Curry, Raitha",
+        "Buttermilk",
+        "Pineapple Kesari***",
       ],
     },
   },
   friday: {
     breakfast: {
-      items: ["Rava Idly", "Vada (3)", "Sambar", "Tomato Onion Chutney", "BBJ, Boiled Groundnuts", "Banana (1) / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Rava Idly", "Vada (3)", "Sambar", "Tomato Onion Chutney", "Boiled Groundnuts", "Banana (1) / Boiled Egg (1)"],
     },
     lunch: {
       items: [
         "Phulka",
-        "Chilli Soya Bean Dry***, Perugu Pachadi",
+        "Aloo Masala Curry",
         "Hyderabadi Veg Pulao, Raita",
-        "Sugar, Salt, Ghee, Podi",
-        "Seasonal Fruit Juice, Onion",
+        "Gongura Chutney, Papad",
+        "Seasonal Fruit Juice",
       ],
+    },
+    snacks: {
+      items: ["Mix Veg Maggi (130gm)", "Tomato Sauce"],
+      beverages: ["Raagi Malt Powder"],
     },
     dinner: {
       items: [
         "Chole Bature, Idiyappam",
-        "Plain Rice, Mixed Dal",
-        "Butter Milk, Papad",
-        "Bread Halwa***",
+        "Bagara Rice, Black Channa Curry",
+        "Buttermilk",
+        "Paruppu Payasam with Jaggery",
       ],
     },
   },
   saturday: {
     breakfast: {
-      items: ["Methi Paratha", "Kabuli Channa Masala", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Methi Paratha", "Kabuli Channa Masala", "Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
     },
     lunch: {
       items: [
-        "Kabuli Channa Masala (with Rice, Sambar, Rasam)",
+        "Tawa Chapathi, Baigan Methi Curry",
+        "Chilli Soya Bean Dry***, Perugu Pachadi",
         "Rice, Sambar, Rasam",
-        "Banana",
+        "Papad, Pickle",
+        "Banana Juice",
       ],
+    },
+    snacks: {
+      items: ["Aloo Samosa (2, should contain peas also)", "Tomato Sauce", "Mint Chutney"],
+      beverages: ["Boost Sachets"],
     },
     dinner: {
       items: [
         "Millet Dosa, Peanut Chutney",
-        "Phulka, Gutti Vankaya Curry",
+        "Plain Rice, Mixed Dal",
+        "Buttermilk, Papad",
+        "Bread Halwa***",
       ],
     },
   },
@@ -231,8 +277,7 @@ const EVEN_WEEK: WeekMenu = {
 const ODD_WEEK: WeekMenu = {
   sunday: {
     breakfast: {
-      items: ["Rava Dosa", "Semiya Upma", "Sambar", "Groundnut Chutney", "BBJ, Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Rava Dosa", "Semiya Upma", "Sambar", "Groundnut Chutney", "Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
     },
     lunch: {
       items: [
@@ -241,8 +286,12 @@ const ODD_WEEK: WeekMenu = {
         "Veg Biryani, Raitha",
         "Badusha (1)",
         "Seasonal Fruit Juice, Ice Cream (1)",
-        "Salad, Onion",
+        "Salad",
       ],
+    },
+    snacks: {
+      items: ["Pani Puri (6)", "Green Chutney", "Tamarind Chutney"],
+      beverages: ["Raagi Malt Powder"],
     },
     dinner: {
       items: [
@@ -255,8 +304,7 @@ const ODD_WEEK: WeekMenu = {
   },
   monday: {
     breakfast: {
-      items: ["Pongal", "Vada (3)", "Sambar", "Coconut Chutney", "BBJ, Sprouts", "Banana (1) / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Pongal", "Vada (3)", "Sambar", "Coconut Chutney", "Sprouts", "Banana (1) / Boiled Egg (1)"],
     },
     lunch: {
       items: [
@@ -264,9 +312,12 @@ const ODD_WEEK: WeekMenu = {
         "Plantain Poriyal",
         "Rice, Sambar, Rasam, Curd",
         "Pickle, Papad",
-        "Sugar, Salt, Ghee, Podi",
-        "Seasonal Fruit Juice, Onion",
+        "Seasonal Fruit Juice",
       ],
+    },
+    snacks: {
+      items: ["Pasta"],
+      beverages: ["Boost Sachets"],
     },
     dinner: {
       items: [
@@ -279,8 +330,7 @@ const ODD_WEEK: WeekMenu = {
   },
   tuesday: {
     breakfast: {
-      items: ["Wheat Dosa (or Pesarattu)", "Sambar", "Tomato Onion Chutney", "BBJ, Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Wheat Dosa (or Pesarattu)", "Sambar", "Tomato Onion Chutney", "Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
     },
     lunch: {
       items: [
@@ -288,23 +338,25 @@ const ODD_WEEK: WeekMenu = {
         "Beans Carrot Poriyal",
         "Rice, Panchratan Dal, Rasam, Curd, Fryums",
         "Pickle",
-        "Sugar, Salt, Ghee, Podi",
-        "Salad, Onion",
+        "Salad",
       ],
+    },
+    snacks: {
+      items: ["Masala Vada (3)", "Pottukadalai Chutney"],
+      beverages: ["Raagi Malt Powder"],
     },
     dinner: {
       items: [
         "Tawa Chapathi, Channa Masala",
         "Rice, Sambar, Beet Root Poriyal, Buttermilk",
-        "Fryums, Dal Fry",
+        "Fryums",
         "Bread Halwa",
       ],
     },
   },
   wednesday: {
     breakfast: {
-      items: ["Puri", "Channa Masala", "BBJ, Sprouts", "Banana (1) / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Puri", "Channa Masala", "Sprouts", "Banana (1) / Boiled Egg (1)"],
     },
     lunch: {
       items: [
@@ -312,23 +364,25 @@ const ODD_WEEK: WeekMenu = {
         "Onion Pakoda***, Perugu Pachadi",
         "Rice, Rasam, Puli Kolambu, Papad, Cabbage Moongdal Coconut Poriyal",
         "Pickle",
-        "Sugar, Salt, Ghee, Podi",
-        "Seasonal Fruit Juice, Onion",
+        "Seasonal Fruit Juice",
       ],
+    },
+    snacks: {
+      items: ["Boiled Groundnuts Chat"],
+      beverages: ["Boost Sachets"],
     },
     dinner: {
       items: [
         "Phulka, Kambu (Pearl Millet) Idli",
         "Sambar, Tomato Onion Chutney",
-        "Buttermilk",
+        "Dal Fry, Buttermilk",
         "Sabudhana Kheer, Kulfi (1, medium) (Malai, Pista, Mango, Strawberry)",
       ],
     },
   },
   thursday: {
     breakfast: {
-      items: ["Wheat Rava Upma", "Poha", "Channa Masala, Curd, Pickle", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Wheat Rava Upma", "Poha", "Mysore Bonda (3)", "Groundnut Chutney", "Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
     },
     lunch: {
       items: [
@@ -336,9 +390,12 @@ const ODD_WEEK: WeekMenu = {
         "Kadai Paneer***",
         "Rice, Masala Sambar, Curd, Fryums, Spinach Kootu",
         "Pickle",
-        "Sugar, Salt, Ghee, Podi",
-        "Salad, Onion",
+        "Salad",
       ],
+    },
+    snacks: {
+      items: ["Channa Chat"],
+      beverages: ["Raagi Malt Powder"],
     },
     dinner: {
       items: [
@@ -351,8 +408,7 @@ const ODD_WEEK: WeekMenu = {
   },
   friday: {
     breakfast: {
-      items: ["Idli", "Vada (3)", "Mysore Bonda (3)", "Groundnut Chutney", "BBJ, Boiled Groundnuts", "Banana (1) / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Idli", "Vada (3)", "Sambar", "Coconut Chutney", "Sprouts", "Banana (1) / Boiled Egg (1)"],
     },
     lunch: {
       items: [
@@ -360,9 +416,12 @@ const ODD_WEEK: WeekMenu = {
         "Keerai Sambar",
         "Rice, Rasam, Curd, Fryums, Pumpkin Kootu",
         "Gongura Chutney",
-        "Sugar, Salt, Ghee, Podi",
-        "Seasonal Fruit Juice, Onion",
+        "Seasonal Fruit Juice",
       ],
+    },
+    snacks: {
+      items: ["Boiled Green Moong Dal"],
+      beverages: ["Boost Sachets"],
     },
     dinner: {
       items: [
@@ -375,8 +434,7 @@ const ODD_WEEK: WeekMenu = {
   },
   saturday: {
     breakfast: {
-      items: ["Aloo Paratha", "Sambar", "Coconut Chutney", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
-      beverages: ["Tea", "Coffee", "Milk", "Sugar", "Salt"],
+      items: ["Aloo Paratha", "Channa Masala, Curd, Pickle", "Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)"],
     },
     lunch: {
       items: [
@@ -384,14 +442,17 @@ const ODD_WEEK: WeekMenu = {
         "Lauki Chana Dal, Gobi 65***",
         "Rice, Rasam, Curd, Tomato Andhra Dal, Papad, Plantain Stem Kootu",
         "Pickle",
-        "Sugar, Salt, Ghee, Podi",
-        "Banana Juice, Onion",
+        "Banana Juice",
       ],
+    },
+    snacks: {
+      items: ["Millet Puttu"],
+      beverages: ["Raagi Malt Powder"],
     },
     dinner: {
       items: [
         "Pulka, Channa Peas Palak",
-        "Sambar Rice, Curd, Soya Chilli",
+        "Sambar Rice, Curd Rice, Soya Chilli",
         "Kara Boondi, Pickle",
         "Gulab Jamun (2)",
       ],
@@ -403,3 +464,18 @@ export const MENUS: Record<"even" | "odd", WeekMenu> = {
   even: EVEN_WEEK,
   odd: ODD_WEEK,
 };
+
+// Day-agnostic rotation table printed at the bottom of the PDF (page 2).
+// It is NOT mapped 1:1 to specific weekdays in the source (only 4-5
+// entries each, not 7) — treat it as "these varieties come up in
+// rotation" rather than a fixed per-day lookup.
+export const SEASONAL_ROTATION = {
+  seasonalCutFruits: ["Watermelon", "Papaya", "Guava", "Pineapple"],
+  pickle: ["Mango", "Garlic", "Tomato", "Lemon", "Ginger"],
+  seasonalFruitJuice: ["Watermelon", "Banana", "Muskmelon", "Papaya", "Pineapple"],
+};
+
+// Notes printed on the PDF itself:
+// 1. *** = Limited quantity.
+// 2. "Item 1 / Item 2" = students may choose one or the other, not both.
+// 3. Snacks are limited.
