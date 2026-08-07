@@ -4,7 +4,7 @@ export type { MealKey, Meal, DayMenu, DayName };
 
 // If your mess's real-world "odd/even week" labelling runs opposite to
 // ISO week parity, flip this to false.
-const EVEN_ISO_WEEK_MEANS_EVEN_MENU = true;
+const EVEN_ISO_WEEK_MEANS_EVEN_MENU = false;
 
 /**
  * ISO-8601 week number (1-53) for a given date, based on the date's
