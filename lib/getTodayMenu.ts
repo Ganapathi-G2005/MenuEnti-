@@ -53,10 +53,11 @@ export function getTodayMenu(date: Date = new Date()): TodayMenu {
 export const MEAL_LABEL: Record<MealKey, string> = {
   breakfast: "Breakfast",
   lunch: "Lunch",
+  snacks: "Snacks",
   dinner: "Dinner",
 };
 
-export const MEAL_ORDER: MealKey[] = ["breakfast", "lunch", "dinner"];
+export const MEAL_ORDER: MealKey[] = ["breakfast", "lunch", "snacks", "dinner"];
 
 export function getMealForKey(menu: DayMenu | null, key: MealKey): Meal | null {
   if (!menu) return null;

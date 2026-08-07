@@ -25,11 +25,13 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  const dateLabel = today.date.toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
+  const dateLabel = mounted
+    ? new Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }).format(today.date)
+    : "—";
 
   return (
     <main className="relative min-h-dvh flex flex-col">

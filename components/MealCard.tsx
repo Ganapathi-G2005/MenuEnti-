@@ -4,12 +4,14 @@ import { MEAL_LABEL } from "@/lib/getTodayMenu";
 const MEAL_GLYPH: Record<MealKey, string> = {
   breakfast: "☕",
   lunch: "🍛",
+  snacks: "🥨",
   dinner: "🌙",
 };
 
 const MEAL_NOTE: Record<MealKey, string> = {
   breakfast: "To start the day",
   lunch: "The midday thali",
+  snacks: "A small evening lift",
   dinner: "To close it out",
 };
 
