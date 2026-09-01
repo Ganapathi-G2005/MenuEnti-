@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0F172A" />
+  <meta name="description" content="Your daily college mess menu — always fresh, always on time." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Mess Menu" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>MessMenu · What's Cooking Today?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ────────────────────────────────── -->
+  <header class="app-header" id="appHeader">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">🍱</div>
+        <span class="brand-name">MessMenu</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="installBtn" title="Install App" aria-label="Install App" style="display:none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        <button class="icon-btn" id="themeToggleBtn" title="Toggle theme" aria-label="Switch to light mode">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="icon-btn" id="calendarToggleBtn" title="Pick a date" aria-label="Open Calendar" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </button>
+        <button class="icon-btn" id="notesBtn" title="Menu notes" aria-label="View notes">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── CALENDAR OVERLAY ──────────────────────── -->
+  <div class="calendar-overlay" id="calendarOverlay" aria-hidden="true">
+    <div class="calendar-panel" role="dialog" aria-modal="true" aria-label="Date picker">
+      <div class="cal-header">
+        <button class="cal-nav" id="calPrev" aria-label="Previous month">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <button class="cal-nav" id="calNext" aria-label="Next month">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="cal-weekdays">
+        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+      </div>
+      <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendar"></div>
+      <div class="cal-footer">
+        <button class="today-btn" id="calTodayBtn">Back to Today</button>
+        <button class="close-cal-btn" id="calCloseBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NOTES MODAL ────────────────────────────── -->
+  <div class="modal-overlay" id="notesModal" aria-hidden="true">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Menu notes">
+      <div class="modal-header">
+        <h2>Menu Notes</h2>
+        <button class="icon-btn" id="notesClose" aria-label="Close notes">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <ul class="notes-list" id="notesList"></ul>
+      <div class="week-badge-row" id="weekBadgeRow"></div>
+    </div>
+  </div>
+
+  <!-- ── iOS INSTALL MODAL ──────────────────────── -->
+  <div class="modal-overlay" id="iosModal" aria-hidden="true">
+    <div class="modal-panel ios-modal-panel" role="dialog" aria-modal="true" aria-label="Install app on iOS">
+      <div class="modal-header">
+        <h2>Add to Home Screen</h2>
+        <button class="icon-btn" id="iosClose" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="ios-steps">
+        <div class="ios-step">
+          <span class="ios-step-num">1</span>
+          <p>Tap the <strong>Share</strong> button <span class="ios-icon">⎙</span> at the bottom of Safari</p>
+        </div>
+        <div class="ios-step">
+          <span class="ios-step-num">2</span>
+          <p>Scroll down and tap <strong>"Add to Home Screen"</strong></p>
+        </div>
+        <div class="ios-step">
+          <span class="ios-step-num">3</span>
+          <p>Tap <strong>Add</strong> — MessMenu will appear on your home screen!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN CONTENT ──────────────────────────── -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Date & Live Clock -->
+    <section class="date-section" id="dateSection">
+      <div class="date-label" id="dateLabel"></div>
+      <div class="live-time" id="liveTime"></div>
+      <div class="week-type-pill" id="weekTypePill"></div>
+    </section>
+
+    <!-- Current Meal Hero -->
+    <section class="current-meal-hero" id="currentMealHero">
+      <div class="meal-tag-row" id="mealTagRow"></div>
+      <h1 class="hero-meal-name" id="heroMealName"></h1>
+      <p class="meal-time-label" id="mealTimeLabel"></p>
+    </section>
+
+    <!-- Meal Selector Tabs -->
+    <nav class="meal-tabs" id="mealTabs" role="tablist" aria-label="Meal selector">
+      <!-- Injected by JS -->
+    </nav>
+
+    <!-- Swipeable Meal Cards -->
+    <section class="meal-cards-container" id="mealCardsContainer" aria-label="Menu cards">
+      <div class="meal-cards-track" id="mealCardsTrack">
+        <!-- Injected by JS -->
+      </div>
+    </section>
+
+    <!-- Special Dinner Callout (conditional) -->
+    <section class="special-dinner-section" id="specialDinnerSection" style="display:none">
+      <div class="special-dinner-card">
+        <div class="special-dinner-badge">✨ Special Dinner</div>
+        <p class="special-dinner-desc">Tonight features a rotating special menu. Check with the mess for today's combination.</p>
+        <button class="special-dinner-btn" id="specialDinnerBtn">See Special Dinner Menu</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── SPECIAL DINNER MODAL ───────────────────── -->
+  <div class="modal-overlay" id="specialDinnerModal" aria-hidden="true">
+    <div class="modal-panel special-dinner-modal-panel" role="dialog" aria-modal="true" aria-label="Special Dinner Menu">
+      <div class="modal-header">
+        <h2>✨ Special Dinner Menu</h2>
+        <button class="icon-btn" id="specialDinnerClose" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="special-dinner-content" id="specialDinnerContent"></div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ──────────────────────────────────── -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <script src="menu-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
