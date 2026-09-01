@@ -46,11 +46,6 @@ const $weekBadgeRow    = document.getElementById("weekBadgeRow");
 const $installBtn      = document.getElementById("installBtn");
 const $iosModal        = document.getElementById("iosModal");
 const $iosClose        = document.getElementById("iosClose");
-const $specialSection  = document.getElementById("specialDinnerSection");
-const $specialBtn      = document.getElementById("specialDinnerBtn");
-const $specialModal    = document.getElementById("specialDinnerModal");
-const $specialContent  = document.getElementById("specialDinnerContent");
-const $specialClose    = document.getElementById("specialDinnerClose");
 const $toast           = document.getElementById("toast");
 const $header          = document.getElementById("appHeader");
 const $themeBtn        = document.getElementById("themeToggleBtn");
@@ -64,7 +59,6 @@ function init() {
   renderCards();
   renderCalendar();
   renderNotesModal();
-  renderSpecialDinnerModal();
   startClock();
   attachEventListeners();
   setupPWA();
@@ -186,8 +180,6 @@ function renderCards() {
   const dayMenu = getDayMenu(selectedDate);
   $mealCardsTrack.innerHTML = MEALS.map(meal => buildMealCard(meal, dayMenu)).join("");
   updateCardPosition(false);
-  // Special dinner section removed — always hide
-  if ($specialSection) $specialSection.style.display = "none";
 }
 
 function buildMealCard(meal, dayMenu) {
@@ -272,72 +264,7 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;");
 }
 
-// ── Special Dinner ────────────────────────────────────────────
-function checkSpecialDinner(dayMenu) {
-  const hasSpecialNote = dayMenu?.dinner?.extras?.some(e =>
-    e.toLowerCase().includes("special dinner")
-  );
-  $specialSection.style.display = hasSpecialNote ? "block" : "none";
-}
 
-function renderSpecialDinnerModal() {
-  const sd = MENU_DATA.specialDinner;
-  $specialContent.innerHTML = `
-    <div class="sd-tab-group">
-      <button class="sd-tab active" id="sdTabVeg" onclick="switchSDTab('veg')">🌿 Veg</button>
-      <button class="sd-tab" id="sdTabNonVeg" onclick="switchSDTab('nonVeg')">🍗 Non-Veg</button>
-    </div>
-    <div id="sdVeg" style="display:flex;flex-direction:column;gap:10px">
-      ${renderSDMenu(sd.veg)}
-    </div>
-    <div id="sdNonVeg" style="display:none;flex-direction:column;gap:10px">
-      ${renderSDMenu(sd.nonVeg)}
-    </div>
-    <p style="font-size:12px;color:var(--text-3);margin-top:8px;line-height:1.4">${sd.note}</p>
-  `;
-}
-
-function renderSDMenu(menu) {
-  return `
-    <div class="sd-block">
-      <div class="sd-section-title">Main Course</div>
-      <div class="sd-items">
-        ${menu.option1.map(i => `<span class="sd-item main">${escapeHtml(i)}</span>`).join("")}
-      </div>
-      <div class="sd-or-divider"><span>OR</span></div>
-      <div class="sd-items">
-        ${menu.option2.map(i => `<span class="sd-item main">${escapeHtml(i)}</span>`).join("")}
-      </div>
-    </div>
-    <div class="sd-block">
-      <div class="sd-section-title">Accompaniments</div>
-      <div class="sd-items">
-        ${menu.accompaniments.map(i => `<span class="sd-item">${escapeHtml(i)}</span>`).join("")}
-      </div>
-    </div>
-    <div class="sd-block">
-      <div class="sd-section-title">Desserts</div>
-      <div class="sd-items">
-        ${menu.desserts.map(i => `<span class="sd-item">${escapeHtml(i)}</span>`).join("")}
-      </div>
-    </div>
-    <div class="sd-block">
-      <div class="sd-section-title">Fruits (any 4 varieties)</div>
-      <div class="sd-items">
-        ${menu.fruits.map(i => `<span class="sd-item">${escapeHtml(i)}</span>`).join("")}
-      </div>
-    </div>
-  `;
-}
-
-window.switchSDTab = function(tab) {
-  const vegEl    = document.getElementById("sdVeg");
-  const nonVegEl = document.getElementById("sdNonVeg");
-  vegEl.style.display    = tab === "veg"    ? "flex" : "none";
-  nonVegEl.style.display = tab === "nonVeg" ? "flex" : "none";
-  document.getElementById("sdTabVeg").classList.toggle("active",    tab === "veg");
-  document.getElementById("sdTabNonVeg").classList.toggle("active", tab === "nonVeg");
-};
 
 // ── Meal Selection ────────────────────────────────────────────
 function selectMeal(meal) {
@@ -589,12 +516,6 @@ function attachEventListeners() {
     }
   });
 
-  // Special dinner
-  $specialBtn.addEventListener("click", () => openModal($specialModal));
-  $specialClose.addEventListener("click", () => closeModal($specialModal));
-  $specialModal.addEventListener("click", e => {
-    if (e.target === $specialModal) closeModal($specialModal);
-  });
 
   // Scroll shadow
   window.addEventListener("scroll", () => {
@@ -607,7 +528,6 @@ function attachEventListeners() {
       closeCalendar();
       closeModal($notesModal);
       closeModal($iosModal);
-      closeModal($specialModal);
     }
   });
 
