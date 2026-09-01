@@ -4,15 +4,15 @@
 
 // ── State ─────────────────────────────────────────────────────
 let selectedDate = new Date();
-let activeMeal   = getCurrentMeal(new Date());
+let activeMeal = getCurrentMeal(new Date());
 let calendarViewDate = new Date(); // month shown in calendar
 let deferredInstallPrompt = null;
 let clockInterval = null;
 let currentTheme = localStorage.getItem('messmenu-theme') || 'dark';
 
 const MEALS = ["breakfast", "lunch", "snacks", "dinner"];
-const DAY_NAMES   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 // Week parity: ISO week 36 (Sep 1 2026) = Odd college week.
 // College odd week = ISO even week number → we flip the standard parity.
@@ -22,33 +22,33 @@ function getWeekType(date) {
 }
 
 // ── DOM References ─────────────────────────────────────────────
-const $dateLabel       = document.getElementById("dateLabel");
-const $liveTime        = document.getElementById("liveTime");
-const $weekTypePill    = document.getElementById("weekTypePill");
-const $mealTagRow      = document.getElementById("mealTagRow");
-const $heroMealName    = document.getElementById("heroMealName");
-const $mealTimeLabel   = document.getElementById("mealTimeLabel");
-const $mealTabs        = document.getElementById("mealTabs");
-const $mealCardsTrack  = document.getElementById("mealCardsTrack");
+const $dateLabel = document.getElementById("dateLabel");
+const $liveTime = document.getElementById("liveTime");
+const $weekTypePill = document.getElementById("weekTypePill");
+const $mealTagRow = document.getElementById("mealTagRow");
+const $heroMealName = document.getElementById("heroMealName");
+const $mealTimeLabel = document.getElementById("mealTimeLabel");
+const $mealTabs = document.getElementById("mealTabs");
+const $mealCardsTrack = document.getElementById("mealCardsTrack");
 const $calendarOverlay = document.getElementById("calendarOverlay");
-const $calGrid         = document.getElementById("calGrid");
-const $calMonthLabel   = document.getElementById("calMonthLabel");
-const $calPrev         = document.getElementById("calPrev");
-const $calNext         = document.getElementById("calNext");
-const $calTodayBtn     = document.getElementById("calTodayBtn");
-const $calCloseBtn     = document.getElementById("calCloseBtn");
-const $calToggleBtn    = document.getElementById("calendarToggleBtn");
-const $notesBtn        = document.getElementById("notesBtn");
-const $notesModal      = document.getElementById("notesModal");
-const $notesClose      = document.getElementById("notesClose");
-const $notesList       = document.getElementById("notesList");
-const $weekBadgeRow    = document.getElementById("weekBadgeRow");
-const $installBtn      = document.getElementById("installBtn");
-const $iosModal        = document.getElementById("iosModal");
-const $iosClose        = document.getElementById("iosClose");
-const $toast           = document.getElementById("toast");
-const $header          = document.getElementById("appHeader");
-const $themeBtn        = document.getElementById("themeToggleBtn");
+const $calGrid = document.getElementById("calGrid");
+const $calMonthLabel = document.getElementById("calMonthLabel");
+const $calPrev = document.getElementById("calPrev");
+const $calNext = document.getElementById("calNext");
+const $calTodayBtn = document.getElementById("calTodayBtn");
+const $calCloseBtn = document.getElementById("calCloseBtn");
+const $calToggleBtn = document.getElementById("calendarToggleBtn");
+const $notesBtn = document.getElementById("notesBtn");
+const $notesModal = document.getElementById("notesModal");
+const $notesClose = document.getElementById("notesClose");
+const $notesList = document.getElementById("notesList");
+const $weekBadgeRow = document.getElementById("weekBadgeRow");
+const $installBtn = document.getElementById("installBtn");
+const $iosModal = document.getElementById("iosModal");
+const $iosClose = document.getElementById("iosClose");
+const $toast = document.getElementById("toast");
+const $header = document.getElementById("appHeader");
+const $themeBtn = document.getElementById("themeToggleBtn");
 
 // ── Init ──────────────────────────────────────────────────────
 function init() {
@@ -104,8 +104,8 @@ function startClock() {
 
 function isSameDay(a, b) {
   return a.getFullYear() === b.getFullYear() &&
-         a.getMonth()    === b.getMonth()    &&
-         a.getDate()     === b.getDate();
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
 }
 
 function isToday(date) {
@@ -118,9 +118,9 @@ function renderDateSection() {
   const today = new Date();
   const isSelectedToday = isToday(selectedDate);
 
-  const dayName   = DAY_NAMES[selectedDate.getDay()];
+  const dayName = DAY_NAMES[selectedDate.getDay()];
   const monthName = MONTH_NAMES[selectedDate.getMonth()];
-  const dateNum   = selectedDate.getDate();
+  const dateNum = selectedDate.getDate();
 
   $dateLabel.textContent = isSelectedToday
     ? `${dayName}, ${dateNum}`
@@ -130,7 +130,7 @@ function renderDateSection() {
   const wn = getISOWeekNumber(selectedDate);
   $weekTypePill.innerHTML = `
     <span>${wt === "even" ? "📅" : "🗓️"}</span>
-    <span>${wt.charAt(0).toUpperCase() + wt.slice(1)} Week (Week ${wn})</span>
+    <span>${wt.charAt(0).toUpperCase() + wt.slice(1)} Week</span>
   `;
 }
 
@@ -322,7 +322,7 @@ function updateCardPosition(animate) {
 
 // ── Calendar ──────────────────────────────────────────────────
 function renderCalendar() {
-  const year  = calendarViewDate.getFullYear();
+  const year = calendarViewDate.getFullYear();
   const month = calendarViewDate.getMonth();
 
   $calMonthLabel.textContent = `${MONTH_NAMES[month]} ${year}`;
@@ -340,17 +340,17 @@ function renderCalendar() {
 
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month, d);
-    const isT   = isSameDay(date, today);
+    const isT = isSameDay(date, today);
     const isSel = isSameDay(date, selectedDate);
 
     let cls = "cal-day";
-    if (isT)   cls += " today";
+    if (isT) cls += " today";
     if (isSel) cls += " selected";
 
     html += `
       <div
         class="${cls}"
-        data-date="${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}"
+        data-date="${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}"
         role="gridcell"
         aria-label="${DAY_NAMES[date.getDay()]} ${d} ${MONTH_NAMES[month]}"
         aria-selected="${isSel}"
@@ -437,7 +437,7 @@ function showToast(msg, duration = 2500) {
 function setupPWA() {
   // Register service worker
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    navigator.serviceWorker.register("sw.js").catch(() => { });
   }
 
   // Android/Chrome install prompt
