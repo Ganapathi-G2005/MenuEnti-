@@ -331,26 +331,20 @@ body {
 
 /* ── Meal Tabs ────────────────────────────────────────────── */
 .meal-tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   padding: 20px 20px 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.meal-tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .meal-tab {
-  flex: none;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 6px;
   border-radius: 99px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-2);
   background: var(--surface);
@@ -358,16 +352,11 @@ body {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
 }
-
-.meal-tab .tab-emoji {
-  font-size: 15px;
-}
-
-.meal-tab:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
+.meal-tab .tab-emoji { font-size: 14px; flex-shrink: 0; }
+.meal-tab:hover { background: var(--surface-2); color: var(--text); }
 
 .meal-tab.active { color: #13121A; border-color: transparent; }
 .meal-tab.active[data-meal="breakfast"] {
@@ -441,13 +430,11 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px 20px 16px;
+  padding: 18px 20px 16px;
   border-bottom: 1px solid var(--border);
 }
 
-.meal-card-emoji {
-  font-size: 28px;
-}
+.meal-card-emoji { font-size: 26px; }
 
 .meal-card-title {
   font-family: var(--font-display);

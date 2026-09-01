@@ -129,7 +129,7 @@ function renderDateSection() {
   const dateNum   = selectedDate.getDate();
 
   $dateLabel.textContent = isSelectedToday
-    ? `Today, ${dayName} ${dateNum}`
+    ? `${dayName}, ${dateNum}`
     : `${dayName}, ${monthName} ${dateNum}`;
 
   const wt = getWeekType(selectedDate);
@@ -146,17 +146,12 @@ function renderMealHero() {
   const currentRealMeal = getCurrentMeal(new Date());
   const isCurrentMealActive = (activeMeal === currentRealMeal) && isToday(selectedDate);
 
-  $mealTagRow.innerHTML = `
-    <span class="meal-tag" style="background:${meta.accent}22;color:${meta.accent};border:1px solid ${meta.accent}33">
-      <span>${meta.emoji}</span>
-      <span>${meta.label}</span>
-    </span>
-    ${isCurrentMealActive ? '<span class="now-badge">LIVE</span>' : ""}
-  `;
+  // Hide the redundant tag row — tabs already show active meal
+  $mealTagRow.style.display = "none";
 
   $heroMealName.textContent = meta.label;
-  $mealTimeLabel.textContent = meta.time;
   $heroMealName.style.color = meta.accent;
+  if ($mealTimeLabel) $mealTimeLabel.style.display = "none";
 }
 
 // ── Render Tabs ───────────────────────────────────────────────
@@ -191,7 +186,8 @@ function renderCards() {
   const dayMenu = getDayMenu(selectedDate);
   $mealCardsTrack.innerHTML = MEALS.map(meal => buildMealCard(meal, dayMenu)).join("");
   updateCardPosition(false);
-  checkSpecialDinner(dayMenu);
+  // Special dinner section removed — always hide
+  if ($specialSection) $specialSection.style.display = "none";
 }
 
 function buildMealCard(meal, dayMenu) {
@@ -204,10 +200,7 @@ function buildMealCard(meal, dayMenu) {
       <div class="meal-card-inner accent-${meal}">
         <div class="meal-card-header">
           <span class="meal-card-emoji">${meta.emoji}</span>
-          <div>
-            <div class="meal-card-title">${meta.label}</div>
-            <div class="meal-card-time">${meta.time}</div>
-          </div>
+          <div class="meal-card-title">${meta.label}</div>
         </div>
         <div class="meal-card-body">
           ${mealData ? buildMealSections(mealData) : buildEmptyState()}
